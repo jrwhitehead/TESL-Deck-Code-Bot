@@ -1,2 +1,2 @@
-praw==6.0.0
+praw==6.4.0
 requests==2.20.0
