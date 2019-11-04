@@ -80,9 +80,7 @@ class TESLDeckCodeBot:
         too_long = None
         deckcode_quantity = 0
         deckcodes_found = 0
-		
-        print(len(deckcodes))
-		
+	
         for code in deckcodes:
             code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
             if deckcodes != None:
