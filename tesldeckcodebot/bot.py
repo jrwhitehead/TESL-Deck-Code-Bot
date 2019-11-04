@@ -31,10 +31,11 @@ class DeckCode:
 
 class TESLDeckCodeBot:
 
-    CODE_MENTION_REGEX = re.compile(r'^(SPA[A-Za-z]{20,})')
+    CODE_MENTION_REGEX = re.compile(r'(?<!\/)SPA[A-Za-z]{20,}')
 
     @staticmethod
     def find_deckcode_mentions(s):
+
         return DeckCode.remove_duplicates(TESLDeckCodeBot.CODE_MENTION_REGEX.findall(s))
 
     def _get_praw_instance(self):
@@ -55,8 +56,9 @@ class TESLDeckCodeBot:
                 s.reply(response)
                 s.save()
                 self.log('Done commenting and saved thread.')
-            except:
+            except PrawcoreException as e:
                 self.log('There was an error while trying to reply so I\'m going to wait 60 seconds before trying again.')
+                self.log(e)
                 time.sleep(60)
 
     def _process_comment(self, c):
@@ -69,17 +71,19 @@ class TESLDeckCodeBot:
                 c.reply(response)
                 c.save()
                 self.log('Done replying and saved comment.')
-            except:
+            except PrawcoreException as e:
                 self.log('There was an error while trying to reply so I\'m going to wait 60 seconds before trying again.')
+                self.log(e)
                 time.sleep(60)
 
+    # TODO: Make this template-able, maybe?
     def build_response(self, deckcodes, author):
         self.log('Building response.')
         response = (''' Hi {}, here are your deck code image links: \n\n'''.format(author))
         too_long = None
         deckcode_quantity = 0
         deckcodes_found = 0
-	
+		
         for code in deckcodes:
             code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
             if deckcodes != None:
@@ -121,8 +125,8 @@ class TESLDeckCodeBot:
 
         while True:
             try:
-		# Updated the method of acquiring comments and submission as new submissions were not being caught
-		# Method from here: https://www.reddit.com/r/redditdev/comments/7vj6ox/can_i_do_other_things_with_praw_while_reading/dtszfzb/?context=3
+		        # Updated the method of acquiring comments and submission as new submissions were not being caught
+		        # Method from here: https://www.reddit.com/r/redditdev/comments/7vj6ox/can_i_do_other_things_with_praw_while_reading/dtszfzb/?context=3
                 new_submissions = r.subreddit(self.target_sub).stream.submissions(pause_after=-1) 
                 new_comments = r.subreddit(self.target_sub).stream.comments(pause_after=-1)
 
