@@ -1,6 +1,5 @@
-import requests, random, praw, praw.exceptions, re, os
+import requests, random, praw, re, os, time
 
-from prawcore.exceptions import PrawcoreException
 from collections import OrderedDict
 
 class DeckCode:
@@ -31,8 +30,8 @@ class DeckCode:
         self.img_url = img_url
 
 class TESLDeckCodeBot:
-    # Using new regex that doesn't match {{}} with no text or less than 3 chars.
-    CODE_MENTION_REGEX = re.compile(r'([STA][A-Za-z]{20,})')
+
+    CODE_MENTION_REGEX = re.compile(r'([^?<=/])(SPA[A-Za-z]{20,})')
 
     @staticmethod
     def find_deckcode_mentions(s):
@@ -41,7 +40,7 @@ class TESLDeckCodeBot:
     def _get_praw_instance(self):
         r = praw.Reddit(client_id=os.environ['CLIENT_ID'],
                         client_secret=os.environ['CLIENT_SECRET'],
-                        user_agent='Python TESL Bot 9000.01 u/TESL-Deck-Code-bot',
+                        user_agent='Python TESL Deck Code Bot v.001 u/TESL-Deck-Code-bot',
                         username=os.environ['REDDIT_USERNAME'],
                         password=os.environ['REDDIT_PASSWORD'])
         return r
@@ -57,8 +56,8 @@ class TESLDeckCodeBot:
                 s.save()
                 self.log('Done commenting and saved thread.')
             except:
-                self.log('There was an error while trying to leave a comment.')
-                raise
+                self.log('There was an error while trying to reply so I\'m going to wait 60 seconds before trying again.')
+                time.sleep(60)
 
     def _process_comment(self, c):
         deckcodes = TESLDeckCodeBot.find_deckcode_mentions(c.body)
@@ -71,26 +70,21 @@ class TESLDeckCodeBot:
                 c.save()
                 self.log('Done replying and saved comment.')
             except:
-                self.log('There was an error while trying to reply.')
-                raise
+                self.log('There was an error while trying to reply so I\'m going to wait 60 seconds before trying again.')
+                time.sleep(60)
 
     # TODO: Make this template-able, maybe?
     def build_response(self, deckcodes, author):
         self.log('Building response.')
         response = (''' Hi {}, here are your deck code image links: \n\n'''.format(author))
         too_long = None
-        deckcodes_not_found = []
         deckcode_quantity = 0
         deckcodes_found = 0
 		
+        print(len(deckcodes))
+		
         for code in deckcodes:
             code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
-            if deckcodes == None:
-                deckcodes_not_found.append(code)
-                deckcode_quantity += 1
-            else:
-                deckcode_quantity += 1
-                too_long = False
             if deckcodes != None:
                 if len(deckcodes) > 5: # just making sure the comment isn't too long
                     deckcodes_found += int(len(deckcodes)) - 5
