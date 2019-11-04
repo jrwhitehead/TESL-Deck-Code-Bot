@@ -1,1 +1,1 @@
-bot: python tesldeckcodebot/main.py --target_sub jrwbottesting
+python tesldeckcodebot/main.py --target_sub jrwbottesting
