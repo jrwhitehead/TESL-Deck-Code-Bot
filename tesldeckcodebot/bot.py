@@ -41,7 +41,7 @@ class TESLDeckCodeBot:
     def _get_praw_instance(self):
         r = praw.Reddit(client_id=os.environ['CLIENT_ID'],
                         client_secret=os.environ['CLIENT_SECRET'],
-                        user_agent='Python TESL Bot 9000.01 u/TESL-TESL-TESL-Deck-Code-bot',
+                        user_agent='Python TESL Bot 9000.01 u/TESL-Deck-Code-bot',
                         username=os.environ['REDDIT_USERNAME'],
                         password=os.environ['REDDIT_PASSWORD'])
         return r
