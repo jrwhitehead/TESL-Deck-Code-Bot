@@ -1,6 +1,7 @@
 from bot import TESLDeckCodeBot
 import argparse
 
+print('deck-code-bot # Initialising...')
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='The Elder Scrolls: Legends Deck Code bot for Reddit.')
     # No default value to prevent accidental mayhem
