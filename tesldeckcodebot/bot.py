@@ -31,7 +31,7 @@ class DeckCode:
 
 class TESLDeckCodeBot:
 
-    CODE_MENTION_REGEX = re.compile(r'([^?<=/])(SPA[A-Za-z]{20,})')
+    CODE_MENTION_REGEX = re.compile(r'^(SPA[A-Za-z]{20,})')
 
     @staticmethod
     def find_deckcode_mentions(s):
@@ -73,7 +73,6 @@ class TESLDeckCodeBot:
                 self.log('There was an error while trying to reply so I\'m going to wait 60 seconds before trying again.')
                 time.sleep(60)
 
-    # TODO: Make this template-able, maybe?
     def build_response(self, deckcodes, author):
         self.log('Building response.')
         response = (''' Hi {}, here are your deck code image links: \n\n'''.format(author))
@@ -84,9 +83,9 @@ class TESLDeckCodeBot:
         for code in deckcodes:
             code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
             if deckcodes != None:
-                if len(deckcodes) > 5: # just making sure the comment isn't too long
-                    deckcodes_found += int(len(deckcodes)) - 5
-                    deckcodes = deckcodes[:5]
+                if len(deckcodes) > 10: # just making sure the comment isn't too long
+                    deckcodes_found += int(len(deckcodes)) - 10
+                    deckcodes = deckcodes[:10]
                     too_long = True
                 for dcode in deckcodes:
                     dcode = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(dcode)
@@ -94,7 +93,7 @@ class TESLDeckCodeBot:
                         response += '{}\n\n\n'.format(str(dcode))
 
         if too_long == True:
-            response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 5 at a time.\n\n'.format(deckcodes_found)
+            response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
 
         response += '\n\n\n^(_Hi, I\'m a bot. Thanks to [u/fenrock369](https://www.reddit.com/user/fenrock369/) for creating this aewsome webservice._)\n' \
                     '\n\n[^Send ^bot ^creator ^a ^PM](https://www.reddit.com/message/compose/?to={})'.format(self.author)
@@ -122,8 +121,8 @@ class TESLDeckCodeBot:
 
         while True:
             try:
-		        # Updated the method of acquiring comments and submission as new submissions were not being caught
-		        # Method from here: https://www.reddit.com/r/redditdev/comments/7vj6ox/can_i_do_other_things_with_praw_while_reading/dtszfzb/?context=3
+		# Updated the method of acquiring comments and submission as new submissions were not being caught
+		# Method from here: https://www.reddit.com/r/redditdev/comments/7vj6ox/can_i_do_other_things_with_praw_while_reading/dtszfzb/?context=3
                 new_submissions = r.subreddit(self.target_sub).stream.submissions(pause_after=-1) 
                 new_comments = r.subreddit(self.target_sub).stream.comments(pause_after=-1)
 
