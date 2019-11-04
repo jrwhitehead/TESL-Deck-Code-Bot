@@ -113,7 +113,7 @@ class TESLDeckCodeBot:
         return response
 
     def log(self, msg):
-        print('TESL-TESL-Deck-Code-bot # {}'.format(msg))
+        print('TESL-Deck-Code-bot # {}'.format(msg))
 
     def start(self, batch_limit=10, buffer_size=1000):
         r = None
