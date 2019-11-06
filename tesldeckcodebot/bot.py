@@ -91,9 +91,9 @@ class TESLDeckCodeBot:
                 too_long = True
             for code in deckcodes:
                 dcode = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
-                positionInList = positionInList + deckcodes.index(code)
                 if (str(dcode)) not in response:
                     response += 'Deck code link [{}]{}\n\n\n'.format(positionInList, str(dcode))
+                    positionInList = positionInList + 1
 
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
