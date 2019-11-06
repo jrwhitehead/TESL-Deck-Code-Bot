@@ -1,10 +1,12 @@
-import requests, random, praw, re, os, time
+import requests, random, praw, re, os, time, json
 
 from collections import OrderedDict
 
 class DeckCode:
     DECK_CODE_IMAGE_BASE_URL = '(http://tesl-decks.markjfisher.net/image/{})'
-
+    DECK_CODE_INFO_BASE_URL = 'http://tesl-decks.markjfisher.net/info/{}'
+    JSON_DATA = []
+	
     @staticmethod
     def remove_duplicates(seq):
         seen = set()
@@ -76,24 +78,32 @@ class TESLDeckCodeBot:
                 self.log(e)
                 time.sleep(60)
 
-    # TODO: Make this template-able, maybe?
     def build_response(self, deckcodes, author):
         self.log('Building response.')
         response = (''' Hi {}, here are your deck code image links: \n\n'''.format(author))
         too_long = None
         deckcodes_found = 0
         positionInList = 1
-		
-        if deckcodes != None:
-            if len(deckcodes) > 10: # just making sure the comment isn't too long
-                deckcodes_found += int(len(deckcodes)) - 10
-                deckcodes = deckcodes[:10]
-                too_long = True
-            for code in deckcodes:
-                dcode = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
-                if (str(dcode)) not in response:
-                    response += 'Deck code link [{}]{}\n\n\n'.format(positionInList, str(dcode))
-                    positionInList = positionInList + 1
+			
+        if len(deckcodes) > 10: # just making sure the comment isn't too long
+            deckcodes_found += int(len(deckcodes)) - 10
+            deckcodes = deckcodes[:10]
+            too_long = True
+        for code in deckcodes:
+            deck_image_url = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
+			
+			# here I'm getting the deck info and using it to determine the deck class
+            deck_info_url = DeckCode.DECK_CODE_INFO_BASE_URL.format(code)
+            cfile = requests.get(deck_info_url)
+            deck_info = cfile.json()
+            with open('deck_info.json', 'w') as f:
+                json.dump(deck_info, f, indent=4, sort_keys=False)
+            with open('deck_info.json') as f:
+                DeckCode.JSON_DATA = json.load(f)
+			
+            if (str(deck_image_url)) not in response:
+                response += 'Deck code link {} [{}]{}\n\n\n'.format(positionInList, DeckCode.JSON_DATA['className'], str(deck_image_url))
+                positionInList = positionInList + 1
 
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
