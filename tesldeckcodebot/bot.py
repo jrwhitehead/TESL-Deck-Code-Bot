@@ -99,8 +99,8 @@ class TESLDeckCodeBot:
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
 
-        response += '\n\n\n^(_Hi, I\'m a bot. Thanks to [u/fenrock369](https://www.reddit.com/user/fenrock369/) for creating this aewsome webservice._)\n' \
-                    '\n\n[^Send ^bot ^creator ^a ^PM](https://www.reddit.com/message/compose/?to={})'.format(self.author)
+        response += '\n\n\n^(_Hi, I\'m a bot. Thanks to fenrock369 for creating this awesome webservice._)\n' \
+                    '\n\n[^Send ^PM](https://www.reddit.com/message/compose/?to={})'.format(self.author)
 					
         if len(response) > 10000:
             response = 'I\'m afraid your query created a reply that was too long.\n\n' \
