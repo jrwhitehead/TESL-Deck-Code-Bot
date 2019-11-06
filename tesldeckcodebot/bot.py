@@ -1,6 +1,7 @@
 import requests, random, praw, re, os, time, json
 
 from collections import OrderedDict
+from prawcore.exceptions import PrawcoreException
 
 class DeckCode:
     DECK_CODE_IMAGE_BASE_URL = '(http://tesl-decks.markjfisher.net/image/{})'
@@ -68,7 +69,7 @@ class TESLDeckCodeBot:
         if len(deckcodes) > 0 and not c.saved and c.author != os.environ['REDDIT_USERNAME']:
             try:
                 deckcodes = list(dict.fromkeys(deckcodes))
-                self.log('Replying to {} in comment id {} about the following deckcodes: {}'.format(c.author, c.id, deckcodes))
+                self.log('Replying to {} in comment id {} about the following {} deckcodes: {}'.format(c.author, c.id, len(deckcodes), deckcodes))
                 response = self.build_response(deckcodes, c.author)
                 c.reply(response)
                 c.save()
@@ -100,10 +101,16 @@ class TESLDeckCodeBot:
                 json.dump(deck_info, f, indent=4, sort_keys=False)
             with open('deck_info.json') as f:
                 DeckCode.JSON_DATA = json.load(f)
-			
-            if (str(deck_image_url)) not in response:
-                response += 'Deck code link {} [{}]{}\n\n\n'.format(positionInList, DeckCode.JSON_DATA['className'], str(deck_image_url))
-                positionInList = positionInList + 1
+            for data in DeckCode.JSON_DATA:
+                try:
+                    if 'message' in data:
+                        response += 'Deck code link {} is not valid\n\n\n'.format(positionInList)
+                        positionInList = positionInList + 1
+                    elif (str(deck_image_url)) not in response:
+                        response += 'Deck code link {} [{}]{}\n\n\n'.format(positionInList, DeckCode.JSON_DATA['className'], str(deck_image_url))
+                        positionInList = positionInList + 1
+                except:
+                    self.log('An error occured whilst building the response.')
 
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
