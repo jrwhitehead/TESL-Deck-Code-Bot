@@ -3,7 +3,7 @@ import requests, random, praw, re, os, time
 from collections import OrderedDict
 
 class DeckCode:
-    DECK_CODE_IMAGE_BASE_URL = 'http://tesl-decks.markjfisher.net/image/{}'
+    DECK_CODE_IMAGE_BASE_URL = '(http://tesl-decks.markjfisher.net/image/{})'
 
     @staticmethod
     def remove_duplicates(seq):
@@ -85,7 +85,7 @@ class TESLDeckCodeBot:
         deckcodes_found = 0
 		
         for code in deckcodes:
-            code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
+            #code = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
             if deckcodes != None:
                 if len(deckcodes) > 10: # just making sure the comment isn't too long
                     deckcodes_found += int(len(deckcodes)) - 10
@@ -94,7 +94,7 @@ class TESLDeckCodeBot:
                 for dcode in deckcodes:
                     dcode = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(dcode)
                     if (str(dcode)) not in response:
-                        response += '{}\n\n\n'.format(str(dcode))
+                        response += '[{}]{}\n\n\n'.format(len(deckcodes), str(dcode))
 
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
