@@ -79,13 +79,19 @@ class TESLDeckCodeBot:
                 self.log(e)
                 time.sleep(60)
 
+    def response_template(why_is_this_here, deck_class, deck_image_url, creatures, actions, items, supports, cost):
+        # create a table for the reply comment using this
+        template = ' **[{}]{}** | {} |  {} | {} | {} | {}\n'.format(str(deck_class), deck_image_url, creatures, actions, items, supports, cost)
+        return template
+		
     def build_response(self, deckcodes, author):
         self.log('Building response.')
-        response = (''' Hi {}, here are your deck code image links: \n\n'''.format(author))
+        response = ' **Class** | **Creatures** | **Actions** | **Items** | **Supports** | **Cost**  \n--|:--:|:--:|:--:|:--:|:--:|--|--\n'
         too_long = None
         deckcodes_found = 0
-        positionInList = 1
-			
+        invalid_code_detected = 0
+        valid_code_detected = False
+		
         if len(deckcodes) > 10: # just making sure the comment isn't too long
             deckcodes_found += int(len(deckcodes)) - 10
             deckcodes = deckcodes[:10]
@@ -93,7 +99,7 @@ class TESLDeckCodeBot:
         for code in deckcodes:
             deck_image_url = DeckCode.DECK_CODE_IMAGE_BASE_URL.format(code)
 			
-			# here I'm getting the deck info and using it to determine the deck class
+			# here I'm getting the deck info from the web service which is used later
             deck_info_url = DeckCode.DECK_CODE_INFO_BASE_URL.format(code)
             cfile = requests.get(deck_info_url)
             deck_info = cfile.json()
@@ -104,23 +110,30 @@ class TESLDeckCodeBot:
             for data in DeckCode.JSON_DATA:
                 try:
                     if 'message' in data:
-                        response += 'Deck code link {} is not valid\n\n\n'.format(positionInList)
-                        positionInList = positionInList + 1
+                        invalid_code_detected += 1
                     elif (str(deck_image_url)) not in response:
-                        response += 'Deck code link {} [{}]{}\n\n\n'.format(positionInList, DeckCode.JSON_DATA['className'], str(deck_image_url))
-                        positionInList = positionInList + 1
-                except:
+                        response += self.response_template(DeckCode.JSON_DATA['className'], str(deck_image_url), DeckCode.JSON_DATA['creatureCount'], DeckCode.JSON_DATA['actionCount'], DeckCode.JSON_DATA['itemCount'], DeckCode.JSON_DATA['supportCount'], DeckCode.JSON_DATA['soulgemCost'])
+                        valid_code_detected = True
+                except Exception as ex:
                     self.log('An error occured whilst building the response.')
+                    self.log('The error was {}.'.format(ex))
 
         if too_long == True:
             response += '\n Your query matched with too many deckcodes. {} further results were omitted. I only link 10 at a time.\n\n'.format(deckcodes_found)
 
-        response += '\n\n\n^(_Hi, I\'m a bot. Thanks to fenrock369 for creating this awesome webservice._)\n' \
-                    '\n\n[^Send ^PM](https://www.reddit.com/message/compose/?to={})'.format(self.author)
-					
+        if invalid_code_detected > 0:
+            response += '\n\n\n {} of the deck codes you posted was invalid \n'.format(invalid_code_detected)
+
+        response += '\n\n\n^(_Hi {}, I\'m a bot. Thanks to fenrock369 for creating this awesome webservice._)\n' \
+                    '\n\n[^Send ^PM](https://www.reddit.com/message/compose/?to={})'.format(author, self.author)
+				
         if len(response) > 10000:
             response = 'I\'m afraid your query created a reply that was too long.\n\n' \
                        'Try entering less deckcodes in your comment/post and I\'ll consider replying.'
+
+        if valid_code_detected == False and invalid_code_detected > 0:
+            response = 'Yo {}, none of your deck codes are valid! Duh.'.format(author)
+
         return response
 
     def log(self, msg):
