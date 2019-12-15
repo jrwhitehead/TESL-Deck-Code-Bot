@@ -124,7 +124,8 @@ class TESLDeckCodeBot:
         if invalid_code_detected > 0:
             response += '\n\n\n {} of the deck codes you posted was invalid \n'.format(invalid_code_detected)
 
-        response += '\n\n\n^(_Hi {}, I\'m a bot. Thanks to fenrock369 for creating this awesome webservice._)\n' \
+        response += '\n\n\n^(_Hi {}, I\'m a bot, I love T:ESL & I\'m sad. Is someone cutting onions? Thanks to fenrock369 for creating the awesome webservice I use._)\n' \
+                    '\n\n^(_Thanks to fenrock369 for creating the awesome webservice I use._)\n' \
                     '\n\n[^Send ^PM](https://www.reddit.com/message/compose/?to={})'.format(author, self.author)
 				
         if len(response) > 10000:
