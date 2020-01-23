@@ -34,7 +34,7 @@ class DeckCode:
 
 class TESLDeckCodeBot:
 
-    CODE_MENTION_REGEX = re.compile(r'(?<!\/)SPA[A-Za-z]{20,}')
+    CODE_MENTION_REGEX = re.compile(r'(?<!\/)SP[A-Za-z]{20,}')
 
     @staticmethod
     def find_deckcode_mentions(s):
